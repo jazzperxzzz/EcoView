@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = "https://ecoview-5k98.onrender.com";
 
 const GEO_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const WEATHER_URL = "https://api.open-meteo.com/v1/forecast";
