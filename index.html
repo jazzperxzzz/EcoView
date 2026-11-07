@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcoView · Environmental Monitoring Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo"><i class="ui-icon" data-lucide="sprout" aria-hidden="true"></i><div><b>EcoView</b><small>Smarter Data. Greener Tomorrow.</small></div></div>
+    <nav aria-label="Dashboard sections">
+      <button type="button" data-view="dashboard" class="active"><i class="ui-icon" data-lucide="layout-dashboard" aria-hidden="true"></i>Dashboard</button>
+      <button type="button" data-view="weather"><i class="ui-icon" data-lucide="cloud-sun" aria-hidden="true"></i>Weather</button>
+      <button type="button" data-view="air"><i class="ui-icon" data-lucide="wind" aria-hidden="true"></i>Air Quality</button>
+      <button type="button" data-view="country"><i class="ui-icon" data-lucide="globe" aria-hidden="true"></i>Country Info</button>
+    </nav>
+    <p class="tagline">Cleaner air,<br>healthier tomorrow.</p>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div>
+        <h1 id="viewTitle">Environmental Monitoring Dashboard</h1>
+        <p class="muted" id="viewSub">Current weather, air quality and environmental data</p>
+      </div>
+      <div class="tools">
+        <div class="search-wrap">
+          <input id="searchInput" type="search" aria-label="Search for a city" placeholder="Search a city (e.g. Cebu City, Manila)…" autocomplete="off">
+          <ul id="suggestions" class="suggestions" hidden></ul>
+        </div>
+        <button type="button" id="unitBtn" class="btn" title="Switch temperature unit (currently °C)">°C / °F</button>
+        <button type="button" id="refreshBtn" class="btn" title="Reload data"><i class="ui-icon" data-lucide="refresh-cw" aria-hidden="true"></i>Refresh</button>
+      </div>
+    </header>
+
+    <div class="chips">
+      <button data-q="Tangub">Tangub City</button><button data-q="Cebu City">Cebu City</button>
+      <button data-q="Manila">Manila</button><button data-q="Tokyo">Tokyo</button><button data-q="London">London</button>
+    </div>
+    <div class="pills">
+      <span class="pill" id="locationLabel"><i class="ui-icon" data-lucide="map-pin" aria-hidden="true"></i><span id="locationText">—</span></span>
+      <span class="pill" id="clock"><i class="ui-icon" data-lucide="clock-3" aria-hidden="true"></i><span id="clockText">—</span></span>
+      <span class="pill" id="overallBadge">Air quality: —</span>
+      <span class="pill" id="updated"><i id="updatedIcon" class="ui-icon" aria-hidden="true" hidden></i><span id="updatedText">Not updated yet</span></span>
+    </div>
+
+    <div id="error" class="error" hidden><i class="ui-icon" data-lucide="triangle-alert" aria-hidden="true"></i><span id="errorMessage"></span></div>
+    <div id="loading" class="loading" hidden><div class="spinner"></div> Loading data…</div>
+
+    <section class="grid four">
+      <article class="card blue" data-views="dashboard weather">
+        <h2><i class="ui-icon" data-lucide="cloud-sun" aria-hidden="true"></i>Weather now</h2>
+        <div class="row">
+          <div><div class="big" id="temp">--</div><div id="condition" class="muted">--</div></div>
+          <dl class="facts">
+            <dt>Humidity</dt><dd id="humidity">--</dd>
+            <dt>Wind</dt><dd id="wind">--</dd>
+            <dt>Feels like</dt><dd id="feels">--</dd>
+          </dl>
+        </div>
+        <p class="note" id="summary"></p>
+      </article>
+
+      <article class="card green" data-views="dashboard air">
+        <h2><i class="ui-icon" data-lucide="wind" aria-hidden="true"></i>Air Quality <span class="tip" title="US AQI: 0 = cleanest, 500 = most hazardous. Under 50 is considered good."><i class="ui-icon" data-lucide="info" aria-hidden="true"></i></span></h2>
+        <div class="row">
+          <div><div class="big" id="aqiNum">--</div><div id="aqiLabel" class="muted">--</div></div>
+          <dl class="facts">
+            <dt>PM2.5</dt><dd id="pm25">--</dd><dt>CO</dt><dd id="co">--</dd>
+            <dt>NO₂</dt><dd id="no2">--</dd><dt>O₃</dt><dd id="o3">--</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="card purple country-info-card" data-views="dashboard country">
+        <div class="country-heading">
+          <h2><i class="ui-icon" data-lucide="globe" aria-hidden="true"></i><span id="countryTitle">Country</span></h2>
+          <img id="flag" alt="Flag" hidden>
+        </div>
+        <dl class="facts">
+          <dt>Selected location</dt><dd id="selectedLocation">--</dd>
+          <dt>Capital</dt><dd id="capital">--</dd><dt>Population</dt><dd id="population">--</dd>
+          <dt>Region</dt><dd id="region">--</dd><dt>Time zone</dt><dd id="tz">--</dd>
+          <dt>Currency</dt><dd id="currency">--</dd><dt>Languages</dt><dd id="languages">--</dd>
+        </dl>
+        <a id="mapLink" class="btn link" target="_blank" rel="noopener"><i class="ui-icon" data-lucide="map" aria-hidden="true"></i>View location on map</a>
+      </article>
+
+      <article class="card green" data-views="dashboard air">
+        <h2><i class="ui-icon" data-lucide="sprout" aria-hidden="true"></i>Environmental Status</h2>
+        <div class="row">
+          <div>
+            <div class="big" id="statusText">--</div>
+            <p class="muted" id="statusAdvice">--</p>
+          </div>
+          <img id="mascotImg" class="mascot" alt="Mascot showing current air quality mood" hidden>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid three">
+      <article class="card" data-views="dashboard weather">
+        <h2><i class="ui-icon" data-lucide="thermometer" aria-hidden="true"></i>Temperature Trend</h2><p class="muted">Daily average temperature, past 7 days</p>
+        <div class="chart"><canvas id="tempChart"></canvas></div><p class="note" id="trendNote"></p>
+      </article>
+      <article class="card" data-views="dashboard weather">
+        <h2><i class="ui-icon" data-lucide="chart-no-axes-column-increasing" aria-hidden="true"></i>Daily High Temperature</h2><p class="muted">Forecast highs for today and the next 6 days</p>
+        <div class="chart"><canvas id="tempBarChart"></canvas></div><p class="note" id="barNote"></p>
+      </article>
+      <article class="card" data-views="dashboard air">
+        <h2><i class="ui-icon" data-lucide="chart-pie" aria-hidden="true"></i>Pollutant Mix</h2><p class="muted">Relative concentrations of PM2.5, PM10, NO₂, SO₂ and O₃</p>
+        <div class="chart"><canvas id="aqiChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="card" data-views="dashboard weather">
+      <h2><i class="ui-icon" data-lucide="calendar-days" aria-hidden="true"></i>7-Day Forecast</h2><p class="muted">Low / high temperature for each day</p>
+      <div id="forecast" class="forecast"></div>
+    </section>
+
+    <section class="card" data-views="air">
+      <h2><i class="ui-icon" data-lucide="book-open" aria-hidden="true"></i>How to read the air quality numbers</h2>
+      <p class="muted">The AQI marker shows where today's air sits on the scale.</p>
+      <div class="scale"><div class="marker" id="aqiMarker"></div></div>
+      <div class="scale-labels"><span>0 Good</span><span>50 Moderate</span><span>100 Sensitive</span><span>150 Unhealthy</span><span>200 Very unhealthy</span><span>300+ Hazardous</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Pollutant</th><th>What it is</th><th>Now</th><th>WHO guideline</th><th>Status</th></tr></thead>
+        <tbody id="pollTable"></tbody>
+      </table></div>
+      <p class="note">Reference values are WHO 2021 guidelines (24-hour averages, except O₃ at 8 hours). Live readings are snapshots, not daily averages, so comparisons are indicative—not compliance assessments.</p>
+    </section>
+
+    <footer class="muted">Data: Open-Meteo &amp; REST Countries · EcoView </footer>
+    <footer class="muted"><small>© 2026 JKC</small></footer>
+
+  </main>
+
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
